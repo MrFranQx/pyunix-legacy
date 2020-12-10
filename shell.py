@@ -17,7 +17,7 @@ def sh(user="root"):     # Define shell function with user defaulting to root
     while True:         # main loop
         command=None    # clear command out
         command=input(term).split() # split the command words to list
-        command=quotecheck(command)
+        command=quotecheck(command) # check if strings present and isolate them
         
         if command==[]: # If command is blank, simply continue
             continue
@@ -101,41 +101,47 @@ def sh(user="root"):     # Define shell function with user defaulting to root
         if init.shellterminate == True: # If shell should be terminated, terminate it
             return 0
 
-def quotecheck(command):
-    stringcheck=False
-    arg=[]
-    stringtype=None
-    for i in command.copy():
-        if stringcheck == True:
+def quotecheck(command): # define the string isolating function with given command
+    stringcheck=False # informs if string was detected
+    arg=[] # list for enclosing the string contents
+    stringtype=None # type of quotes (1 – 'single', 2 – "double")
+    
+    for i in command.copy(): # main loop – operating on copy of command to not destroy original list
+        if stringcheck == True: # if inside string, append the word to list
             arg.append(i)
-        if i.count("'") == 1 and stringcheck==True and stringtype==1:
-            stringcheck = False
-            stringtype = None
-            arg[0] = arg[0][0:quoteindex]+arg[0][quoteindex+1:]
-            arg[-1] = arg[-1][0:i.index("'")]+arg[-1][i.index("'")+1:]
-            command[startindex] = " ".join(arg)
-            for j in range(len(arg)-1):
+            
+        if i.count("'") == 1 and stringcheck==True and stringtype==1: # if at the end of single quote string
+            stringcheck = False # set string detector to False
+            stringtype = None # unset string type
+            arg[0] = arg[0][0:quoteindex]+arg[0][quoteindex+1:] # remove the quote from the beginning word
+            arg[-1] = arg[-1][0:i.index("'")]+arg[-1][i.index("'")+1:] # remove the quote from the ending word
+            command[startindex] = " ".join(arg) # join the contents of the list and place them in position of first word
+            for j in range(len(arg)-1): # loop to remove remaining words
                 command.pop(startindex+1)
-            arg.clear()
-        elif i.count("'")==1 and stringcheck==False and stringtype==None:
-            startindex = command.index(i)
-            quoteindex = i.index("'")
-            stringcheck = True
-            stringtype = 1
-            arg.append(i)
-        if i.count('"') == 1 and stringcheck==True and stringtype==2:
-            stringcheck = False
-            stringtype = None
-            arg[0] = arg[0][0:quoteindex]+arg[0][quoteindex+1:]
-            arg[-1] = arg[-1][0:i.index('"')]+arg[-1][i.index('"')+1:]
-            command[startindex] = " ".join(arg)
-            for j in range(len(arg)-1):
+            arg.clear() # clear the string list
+            
+        elif i.count("'")==1 and stringcheck==False and stringtype==None: # if at the beginning of single quote string
+            startindex = command.index(i) # remember index of first string element
+            quoteindex = i.index("'") # remember the position of quote in string
+            stringcheck = True # set string detector to True
+            stringtype = 1 # set string type to 1 (single quote)
+            arg.append(i) # append the first word to list
+            
+        if i.count('"') == 1 and stringcheck==True and stringtype==2: # if at the end of double quote string
+            stringcheck = False # set string detector to False
+            stringtype = None # unset string type
+            arg[0] = arg[0][0:quoteindex]+arg[0][quoteindex+1:] # remove the quote from the beginning word
+            arg[-1] = arg[-1][0:i.index('"')]+arg[-1][i.index('"')+1:] # remove the quote from the ending word
+            command[startindex] = " ".join(arg) # join the contents of the list and place them in position of first word
+            for j in range(len(arg)-1): # loop to remove remaining words
                 command.pop(startindex+1)
-            arg.clear()
-        elif i.count('"')==1 and stringcheck==False and stringtype==None:
-            startindex = command.index(i)
-            quoteindex = i.index('"')
-            stringcheck = True
-            stringtype = 2
-            arg.append(i)
-    return command
+            arg.clear() # clear the string list
+            
+        elif i.count('"')==1 and stringcheck==False and stringtype==None: # if at the beginning of double quote string
+            startindex = command.index(i) # remember index of first string element
+            quoteindex = i.index('"') # remember the position of quote in string
+            stringcheck = True # set string detector to True
+            stringtype = 2 # set string type to 2 (double quote)
+            arg.append(i) # append the first word to list
+            
+    return command # return the modified command
