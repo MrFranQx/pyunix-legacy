@@ -17,6 +17,7 @@ def sh(user="root"):     # Define shell function with user defaulting to root
     while True:         # main loop
         command=None    # clear command out
         command=input(term).split() # split the command words to list
+        command=quotecheck(command)
         
         if command==[]: # If command is blank, simply continue
             continue
@@ -99,3 +100,42 @@ def sh(user="root"):     # Define shell function with user defaulting to root
         
         if init.shellterminate == True: # If shell should be terminated, terminate it
             return 0
+
+def quotecheck(command):
+    stringcheck=False
+    arg=[]
+    stringtype=None
+    for i in command.copy():
+        if stringcheck == True:
+            arg.append(i)
+        if i.count("'") == 1 and stringcheck==True and stringtype==1:
+            stringcheck = False
+            stringtype = None
+            arg[0] = arg[0][0:quoteindex]+arg[0][quoteindex+1:]
+            arg[-1] = arg[-1][0:i.index("'")]+arg[-1][i.index("'")+1:]
+            command[startindex] = " ".join(arg)
+            for j in range(len(arg)-1):
+                command.pop(startindex+1)
+            arg.clear()
+        elif i.count("'")==1 and stringcheck==False and stringtype==None:
+            startindex = command.index(i)
+            quoteindex = i.index("'")
+            stringcheck = True
+            stringtype = 1
+            arg.append(i)
+        if i.count('"') == 1 and stringcheck==True and stringtype==2:
+            stringcheck = False
+            stringtype = None
+            arg[0] = arg[0][0:quoteindex]+arg[0][quoteindex+1:]
+            arg[-1] = arg[-1][0:i.index('"')]+arg[-1][i.index('"')+1:]
+            command[startindex] = " ".join(arg)
+            for j in range(len(arg)-1):
+                command.pop(startindex+1)
+            arg.clear()
+        elif i.count('"')==1 and stringcheck==False and stringtype==None:
+            startindex = command.index(i)
+            quoteindex = i.index('"')
+            stringcheck = True
+            stringtype = 2
+            arg.append(i)
+    return command
