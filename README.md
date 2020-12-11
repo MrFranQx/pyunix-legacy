@@ -1,4 +1,5 @@
-# PyUnix
-PyUnix is a simple Unix-like system written in Python.
+# PyUnix-legacy
+This is the old version of PyUnix, and it's kept only for someone to reuse the code.
 
-It's still in serious development, and I probably won't be able to implement all functions.
+I've started a rewrite at:
+https://github.com/MrFranQx/pyunix
